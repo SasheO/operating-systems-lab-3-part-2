@@ -6,64 +6,61 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-void  ClientProcess(int []);
+void  ChildProcess(int []);
+void  ParentProcess(int []);
 
-int  main(int  argc, char *argv[])
-{
-     int    BankAcctID;
-     int    *BankAcctPtr;
-     pid_t  pid;
-     int    status;
+int  main(int  argc, char *argv[]){
+  int    BankAcctID;
+  int    *BankAcctPtr;
+  int    TurnID;
+  int    *TurnPtr;
+  pid_t  pid;
+  int    status;
 
-     if (argc != 5) {
-          printf("Use: %s #1 #2 #3 #4\n", argv[0]);
-          exit(1);
-     }
+  // provision shared memory for BankAcctID and TurnID, see any errors in allocating shared memory
+  BankAcctID = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
+  if (BankAcctID < 0) {
+      printf("*** shmget error ***\n");
+      exit(1);
+  }
+  TurnID = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
+  if (TurnID < 0) {
+      printf("*** shmget error ***\n");
+      exit(1);
+  }
+  printf("Server has received a shared memory of four integers...\n");
 
-     BankAcctID = shmget(IPC_PRIVATE, 2*sizeof(int), IPC_CREAT | 0666);
-     if (BankAcctID < 0) {
-          printf("*** shmget error (server) ***\n");
-          exit(1);
-     }
-     printf("Server has received a shared memory of four integers...\n");
+  // set BankAcctPtr and TurnPtr pointers to the shared memory provisioned
+  BankAcctPtr = (int *) shmat(BankAcctID, NULL, 0);
+  if (*BankAcctPtr == -1) {
+      printf("*** shmat error ***\n");
+      exit(1);
+  }
+  TurnPtr = (int *) shmat(TurnID, NULL, 0);
+  if (*TurnPtr == -1) {
+      printf("*** shmat error ***\n");
+      exit(1);
+  }
 
-     BankAcctPtr = (int *) shmat(BankAcctID, NULL, 0);
-     if (*BankAcctPtr == -1) {
-          printf("*** shmat error (server) ***\n");
-          exit(1);
-     }
-     printf("Server has attached the shared memory...\n");
+  *BankAcctPtr = 0; // initialize value to 0
+  *TurnPtr = 0; // initialize value to 0
 
-     BankAcctPtr[0] = 0;
-     BankAcctPtr[1] = 0;
-     printf("Server has filled %d %d %d %d in shared memory...\n",
-            BankAcctPtr[0], BankAcctPtr[1], BankAcctPtr[2], BankAcctPtr[3]);
 
-     printf("Server is about to fork a child process...\n");
-     pid = fork();
-     if (pid < 0) {
-          printf("*** fork error (server) ***\n");
-          exit(1);
-     }
-     else if (pid == 0) {
-          ClientProcess(BankAcctPtr);
-          exit(0);
-     }
+  pid = fork();
+  if (pid < 0) {
+      printf("*** fork error ***\n");
+      exit(1);
+  }
+  else if (pid == 0) {
+      ChildProcess(BankAcctPtr);
+      // exit(0);
+  }
+  else{
+    ParentProcess(BankAcctPtr);
+  }
 
-     wait(&status);
-     printf("Server has detected the completion of its child...\n");
-     shmdt((void *) BankAcctPtr);
-     printf("Server has detached its shared memory...\n");
-     shmctl(BankAcctID, IPC_RMID, NULL);
-     printf("Server has removed its shared memory...\n");
-     printf("Server exits...\n");
-     exit(0);
+  return 0;
 }
 
-void  ClientProcess(int  SharedMem[])
-{
-     printf("   Client process started\n");
-     printf("   Client found %d %d %d %d in shared memory\n",
-                SharedMem[0], SharedMem[1], SharedMem[2], SharedMem[3]);
-     printf("   Client is about to exit\n");
-}
+void  ChildProcess(int  SharedMem[]){}
+void  ParentProcess(int  SharedMem[]){}
