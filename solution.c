@@ -65,59 +65,64 @@ int  main(int  argc, char *argv[]){
 
 void  ChildProcess(int  *BankAcctPtr, int *TurnPtr){
   srandom(time(NULL));
-  int sleep_time, account, balance, indx;
-  for (indx=0; indx < 25; indx ++){
+  int sleep_time, account, balance_needed, indx;
+  for (indx=0; indx < 25; indx ++){ // loop 25 times as per the lab prompt
     sleep_time = random()%5+1;
-    sleep(sleep_time);
-    while(*TurnPtr!=1);
+    sleep(sleep_time); // sleep random amount of time between 1-5 seconds
+    while(*TurnPtr!=1);  // wait to get lock
     account = *BankAcctPtr; // copy the in BankAccount to a local variable account
-    balance = random()%50;
-    printf("Poor Student needs $%d\n", balance);
-    if (balance<=account){
-      account -= balance;
-      printf("Poor Student: Withdraws $%d / Balance = $%d\n", balance, account);
+    
+    // student tries to withdraw random amount of money if they have enough in their bank account
+    balance_needed = random()%50; 
+    printf("Poor Student needs $%d\n", balance_needed);
+    if (balance_needed<=account){
+      account -= balance_needed;
+      printf("Poor Student: Withdraws $%d / Balance = $%d\n", balance_needed, account);
     }
     else{
       printf("Poor Student: Not Enough Cash ($%d)\n", account );
     }
-    * BankAcctPtr = account;
-    * TurnPtr = 0;
+    
+    * BankAcctPtr = account; // update shared variable BankAcctPtr with locat account variable
+    * TurnPtr = 0; // release lock
   }
 }
 
 void  ParentProcess(int * BankAcctPtr, int *TurnPtr){
   srandom(time(NULL));
   int sleep_time, indx;
+  int * accountPTR;
   int account; // local variable for bank account amount
-  for (indx=0; indx < 25; indx ++){
-    int * accountPTR = &account;
+  for (indx=0; indx < 25; indx ++){  // loop 25 times as per the lab prompt
+    accountPTR = &account; // accountPTR pointer holds the address of account integer (effectively points to accout)
     sleep_time = random()%5+1;
-    sleep(sleep_time);
-    while(*TurnPtr!=0);
+    sleep(sleep_time); // sleep random amount of time between 1-5 seconds
+    while(*TurnPtr!=0); // wait to get lock
     account = *BankAcctPtr; // copy the in BankAccount to a local variable account
     if (account <= 100){
-      DepositMoney(accountPTR);
-      *BankAcctPtr = *accountPTR;
+      DepositMoney(accountPTR); // edits account variable using its pointer
+      *BankAcctPtr = account; // update shared variable BankAcctPtr with locat account variable
     }
     else{
       printf("Dear old Dad: Thinks Student has enough Cash ($%d)\n", account);
     }
-    *TurnPtr = 1;
+    *TurnPtr = 1; // release lock
   }
 }
 
 void DepositMoney(int *accountPTR){
+  /*
+  Takes in int accountPTR pointer, generates a number <100.
+  if random number is even, it modifies the value in accountPTR and prints message.
+  otherwise prints message
+  */
   srandom(time(NULL));
   int deposit_amount = random()%100;
-  // * accountPTR = 100;
   if (deposit_amount%2==0){
-    // TODO: deposit amount into account
     * accountPTR += deposit_amount;
     printf("Dear old Dad: Deposits $%d / Balance = $%d\n", deposit_amount, *accountPTR);
   }
   else{
     printf("Dear old Dad: Doesn't have any money to give\n");
   }
-  
-
 }
