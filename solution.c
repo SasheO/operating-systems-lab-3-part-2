@@ -6,8 +6,9 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-void  ChildProcess(int []);
-void  ParentProcess(int []);
+void ChildProcess(int*, int*);
+void  ParentProcess(int*, int*);
+void  DepositMoney();
 
 int  main(int  argc, char *argv[]){
   int    BankAcctID;
@@ -28,7 +29,6 @@ int  main(int  argc, char *argv[]){
       printf("*** shmget error ***\n");
       exit(1);
   }
-  printf("Server has received a shared memory of four integers...\n");
 
   // set BankAcctPtr and TurnPtr pointers to the shared memory provisioned
   BankAcctPtr = (int *) shmat(BankAcctID, NULL, 0);
@@ -52,22 +52,32 @@ int  main(int  argc, char *argv[]){
       exit(1);
   }
   else if (pid == 0) {
-      ChildProcess(BankAcctPtr);
+      ChildProcess(BankAcctPtr, TurnPtr);
       // exit(0);
   }
   else{
-    ParentProcess(BankAcctPtr);
+    ParentProcess(BankAcctPtr, TurnPtr);
   }
 
   return 0;
 }
 
-void  ChildProcess(int  SharedMem[]){}
-void  ParentProcess(int  SharedMem[]){
+
+void  ChildProcess(int  *BankAcctPtr, int *TurnPtr){}
+void  ParentProcess(int * BankAcctPtr, int *TurnPtr){
   int sleep_time;
   int account; // local variable for bank accound amount
   sleep_time = random()%5+1;
   sleep(sleep_time);
+  account = *BankAcctPtr; // copy the in BankAccount to a local variable account
+  if (account < 100){
+    DepositMoney();
+  }
+  else{
+    printf("Dear old Dad: Thinks Student has enough Cash ($%d)\n", account);
+  }
 
 
 }
+
+void DepositMoney(){}
