@@ -65,13 +65,15 @@ int  main(int  argc, char *argv[]){
 
 void  ChildProcess(int  *BankAcctPtr, int *TurnPtr){}
 void  ParentProcess(int * BankAcctPtr, int *TurnPtr){
+  srandom(time(NULL));
   int sleep_time;
-  int account; // local variable for bank accound amount
+  int account = 0; // local variable for bank accound amount
+  int * accountPTR = &account;
   sleep_time = random()%5+1;
   sleep(sleep_time);
   account = *BankAcctPtr; // copy the in BankAccount to a local variable account
   if (account < 100){
-    DepositMoney();
+    DepositMoney(accountPTR);
   }
   else{
     printf("Dear old Dad: Thinks Student has enough Cash ($%d)\n", account);
@@ -80,4 +82,17 @@ void  ParentProcess(int * BankAcctPtr, int *TurnPtr){
 
 }
 
-void DepositMoney(){}
+void DepositMoney(int *accountPTR){
+  srandom(time(NULL));
+  int balance;
+  int deposit_amount = random()%100;
+  if (deposit_amount%2==0){
+    // TODO: deposit amount into account
+    balance = * accountPTR;
+    * accountPTR = deposit_amount;
+    printf("Dear old Dad: Deposits $%d / Balance = $%d\n", balance, *accountPTR);
+  }
+  else{
+    printf("Dear old Dad: Doesn't have any money to give\n");
+  }
+}
