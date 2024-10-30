@@ -69,8 +69,8 @@ void  ChildProcess(int  *BankAcctPtr, int *TurnPtr){
   for (indx=0; indx < 25; indx ++){
     sleep_time = random()%5+1;
     sleep(sleep_time);
-    account = *BankAcctPtr; // copy the in BankAccount to a local variable account
     while(*TurnPtr!=1);
+    account = *BankAcctPtr; // copy the in BankAccount to a local variable account
     balance = random()%50;
     printf("Poor Student needs $%d\n", balance);
     if (balance<=account){
@@ -93,19 +93,20 @@ void  ParentProcess(int * BankAcctPtr, int *TurnPtr){
     int * accountPTR = &account;
     sleep_time = random()%5+1;
     sleep(sleep_time);
-    account = *BankAcctPtr; // copy the in BankAccount to a local variable account
     while(*TurnPtr!=0);
+    account = *BankAcctPtr; // copy the in BankAccount to a local variable account
     if (account <= 100){
-      DepositMoney(accountPTR, TurnPtr);
+      DepositMoney(accountPTR);
       *BankAcctPtr = *accountPTR;
     }
     else{
       printf("Dear old Dad: Thinks Student has enough Cash ($%d)\n", account);
     }
+    *TurnPtr = 1;
   }
 }
 
-void DepositMoney(int *accountPTR, int *TurnPtr){
+void DepositMoney(int *accountPTR){
   srandom(time(NULL));
   int deposit_amount = random()%100;
   // * accountPTR = 100;
@@ -117,6 +118,6 @@ void DepositMoney(int *accountPTR, int *TurnPtr){
   else{
     printf("Dear old Dad: Doesn't have any money to give\n");
   }
-  *TurnPtr = 1;
+  
 
 }
