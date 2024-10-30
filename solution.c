@@ -63,11 +63,30 @@ int  main(int  argc, char *argv[]){
 }
 
 
-void  ChildProcess(int  *BankAcctPtr, int *TurnPtr){}
+void  ChildProcess(int  *BankAcctPtr, int *TurnPtr){
+  srandom(time(NULL));
+  int sleep_time, account, balance;
+  sleep_time = random()%5+1;
+  sleep(sleep_time);
+  account = *BankAcctPtr; // copy the in BankAccount to a local variable account
+  while(*TurnPtr!=1);
+  balance = random()%50;
+  printf("Poor Student needs $%d\n", balance);
+  if (balance<=account){
+    account -= balance;
+    printf("Poor Student: Withdraws $%d / Balance = $%d\n", balance, account);
+  }
+  else{
+    printf("Poor Student: Not Enough Cash ($%d)\n", account );
+  }
+  * BankAcctPtr = account;
+  * TurnPtr = 0;
+}
+
 void  ParentProcess(int * BankAcctPtr, int *TurnPtr){
   srandom(time(NULL));
   int sleep_time;
-  int account = 0; // local variable for bank accound amount
+  int account = 0; // local variable for bank account amount
   int * accountPTR = &account;
   sleep_time = random()%5+1;
   sleep(sleep_time);
