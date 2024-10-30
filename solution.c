@@ -3,6 +3,7 @@
 #include  <sys/types.h>
 #include  <sys/ipc.h>
 #include  <sys/shm.h>
+#include <time.h>
 #include <unistd.h>
 #include <sys/wait.h>
 
@@ -16,7 +17,6 @@ int  main(int  argc, char *argv[]){
   int    TurnID;
   int    *TurnPtr;
   pid_t  pid;
-  int    status;
 
   // provision shared memory for BankAcctID and TurnID, see any errors in allocating shared memory
   BankAcctID = shmget(IPC_PRIVATE, sizeof(int), IPC_CREAT | 0666);
@@ -72,17 +72,16 @@ void  ParentProcess(int * BankAcctPtr, int *TurnPtr){
   sleep_time = random()%5+1;
   sleep(sleep_time);
   account = *BankAcctPtr; // copy the in BankAccount to a local variable account
-  if (account < 100){
-    DepositMoney(accountPTR);
+  while(*TurnPtr!=0);
+  if (account <= 100){
+    DepositMoney(accountPTR, TurnPtr);
   }
   else{
     printf("Dear old Dad: Thinks Student has enough Cash ($%d)\n", account);
   }
-
-
 }
 
-void DepositMoney(int *accountPTR){
+void DepositMoney(int *accountPTR, int *TurnPtr){
   srandom(time(NULL));
   int balance;
   int deposit_amount = random()%100;
@@ -95,4 +94,5 @@ void DepositMoney(int *accountPTR){
   else{
     printf("Dear old Dad: Doesn't have any money to give\n");
   }
+  *TurnPtr = 1;
 }
