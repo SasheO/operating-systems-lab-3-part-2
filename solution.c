@@ -65,53 +65,58 @@ int  main(int  argc, char *argv[]){
 
 void  ChildProcess(int  *BankAcctPtr, int *TurnPtr){
   srandom(time(NULL));
-  int sleep_time, account, balance;
-  sleep_time = random()%5+1;
-  sleep(sleep_time);
-  account = *BankAcctPtr; // copy the in BankAccount to a local variable account
-  while(*TurnPtr!=1);
-  balance = random()%50;
-  printf("Poor Student needs $%d\n", balance);
-  if (balance<=account){
-    account -= balance;
-    printf("Poor Student: Withdraws $%d / Balance = $%d\n", balance, account);
+  int sleep_time, account, balance, indx;
+  for (indx=0; indx < 25; indx ++){
+    sleep_time = random()%5+1;
+    sleep(sleep_time);
+    account = *BankAcctPtr; // copy the in BankAccount to a local variable account
+    while(*TurnPtr!=1);
+    balance = random()%50;
+    printf("Poor Student needs $%d\n", balance);
+    if (balance<=account){
+      account -= balance;
+      printf("Poor Student: Withdraws $%d / Balance = $%d\n", balance, account);
+    }
+    else{
+      printf("Poor Student: Not Enough Cash ($%d)\n", account );
+    }
+    * BankAcctPtr = account;
+    * TurnPtr = 0;
   }
-  else{
-    printf("Poor Student: Not Enough Cash ($%d)\n", account );
-  }
-  * BankAcctPtr = account;
-  * TurnPtr = 0;
 }
 
 void  ParentProcess(int * BankAcctPtr, int *TurnPtr){
   srandom(time(NULL));
-  int sleep_time;
-  int account = 0; // local variable for bank account amount
-  int * accountPTR = &account;
-  sleep_time = random()%5+1;
-  sleep(sleep_time);
-  account = *BankAcctPtr; // copy the in BankAccount to a local variable account
-  while(*TurnPtr!=0);
-  if (account <= 100){
-    DepositMoney(accountPTR, TurnPtr);
-  }
-  else{
-    printf("Dear old Dad: Thinks Student has enough Cash ($%d)\n", account);
+  int sleep_time, indx;
+  int account; // local variable for bank account amount
+  for (indx=0; indx < 25; indx ++){
+    int * accountPTR = &account;
+    sleep_time = random()%5+1;
+    sleep(sleep_time);
+    account = *BankAcctPtr; // copy the in BankAccount to a local variable account
+    while(*TurnPtr!=0);
+    if (account <= 100){
+      DepositMoney(accountPTR, TurnPtr);
+      *BankAcctPtr = *accountPTR;
+    }
+    else{
+      printf("Dear old Dad: Thinks Student has enough Cash ($%d)\n", account);
+    }
   }
 }
 
 void DepositMoney(int *accountPTR, int *TurnPtr){
   srandom(time(NULL));
-  int balance;
   int deposit_amount = random()%100;
+  // * accountPTR = 100;
   if (deposit_amount%2==0){
     // TODO: deposit amount into account
-    balance = * accountPTR;
-    * accountPTR = deposit_amount;
-    printf("Dear old Dad: Deposits $%d / Balance = $%d\n", balance, *accountPTR);
+    * accountPTR += deposit_amount;
+    printf("Dear old Dad: Deposits $%d / Balance = $%d\n", deposit_amount, *accountPTR);
   }
   else{
     printf("Dear old Dad: Doesn't have any money to give\n");
   }
   *TurnPtr = 1;
+
 }
