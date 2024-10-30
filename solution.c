@@ -63,4 +63,11 @@ int  main(int  argc, char *argv[]){
 }
 
 void  ChildProcess(int  SharedMem[]){}
-void  ParentProcess(int  SharedMem[]){}
+void  ParentProcess(int  SharedMem[]){
+  int sleep_time;
+  int account; // local variable for bank accound amount
+  sleep_time = random()%5+1;
+  sleep(sleep_time);
+
+
+}
