@@ -29,7 +29,6 @@ int  main(int  argc, char *argv[]){
       printf("*** shmget error ***\n");
       exit(1);
   }
-  printf("Process has received a shared memory of two integers...\n");
 
   // set BankAcctPtr and TurnPtr pointers to the shared memory provisioned
   BankAcctPtr = (int *) shmat(BankAcctID, NULL, 0);
@@ -42,7 +41,6 @@ int  main(int  argc, char *argv[]){
       printf("*** shmat error ***\n");
       exit(1);
   }
-  printf("Process has attached the shared memory...\n");
   
 
   *BankAcctPtr = 0; // initialize value to 0
